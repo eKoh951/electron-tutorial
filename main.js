@@ -1,10 +1,13 @@
-const { app, BrowserWindow } = require('electron')
-let ward = 0
+const { app, ipcMain, BrowserWindow } = require('electron')
+const path = require('node:path')
 
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
-    height: 600
+		height: 600,
+		webPreferences: {
+			preload: path.join(__dirname, 'preload.js')
+		}
   })
 
   win.loadFile('index.html')
@@ -12,16 +15,13 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
 	createWindow()
+	ipcMain.handle('ping', () => 'pong')
 	
-	ward += 1
 	app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-	ward += 1
 })
 
 app.on('window-all-closed', () => {
-	ward += 1
-
   if (process.platform !== 'darwin') app.quit()
 })

@@ -44,4 +44,17 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'eKoh951',
+          name: 'electron-tutorial'
+        },
+        prerelease: false,
+        draft: true
+      }
+    }
+  ]
 };

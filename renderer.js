@@ -14,10 +14,12 @@ const torrentId = 'https://webtorrent.io/torrents/sintel.torrent';
 window.api.addTorrent(torrentId);
 
 window.api.onTorrentProgress((event, data) => {
+  console.log('window.api.onTorrentProgress');
   const { numPeers, downloaded, total, progress, downloadSpeed, uploadSpeed, remaining } = data;
 
-  $numPeers.innerHTML = numPeers + (numPeers === 1 ? ' peer' : ' peers');
   const percent = Math.round(progress * 100 * 100) / 100;
+
+  $numPeers.innerHTML = numPeers + (numPeers === 1 ? ' peer' : ' peers');
   $progressBar.style.width = percent + '%';
   $downloaded.innerHTML = prettyBytes(downloaded);
   $total.innerHTML = prettyBytes(total);
@@ -31,10 +33,21 @@ window.api.onTorrentDone(() => {
 });
 
 window.api.onTorrentFile((event, data) => {
-  const { url } = data;
+  console.log('data', data);
+  const { buffer } = data;
+  const byteCharacters = atob(buffer);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'video/mp4' });
+  const url = URL.createObjectURL(blob);
+
   player.src = url;
   player.play();
 });
+
 
 window.api.onTorrentError((event, data) => {
   console.error('Torrent error:', data.message);

@@ -2,7 +2,7 @@
   "name": "my-electron-app",
   "author": "Erick Ponce",
   "license": "ISC",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Electron tutorial app",
   "main": "main.js",
   "repository": {

@@ -36,6 +36,11 @@ window.api.onTorrentFile((event, data) => {
   player.play();
 });
 
+window.api.onTorrentError((event, data) => {
+  console.error('Torrent error:', data.message);
+  alert('Error: ' + data.message);
+});
+
 function prettyBytes(num) {
   const units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const neg = num < 0;

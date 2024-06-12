@@ -16,23 +16,26 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadFile('index.html');
 
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
 
-  // Iniciar el proceso separado para WebTorrent usando utilityProcess
   webTorrentProcess = utilityProcess.fork(path.join(__dirname, 'webtorrent-process.js'));
 
-  // Manejar mensajes desde el proceso WebTorrent
   webTorrentProcess.on('message', (message) => {
+    if (message.type === 'torrent-progress') {
+      mainWindow.webContents.send('torrent-progress', message.data);
+    }
+    if (message.type === 'torrent-done') {
+      mainWindow.webContents.send('torrent-done');
+    }
     if (message.type === 'torrent-file') {
       mainWindow.webContents.send('torrent-file', message.data);
     }
   });
 
-  // Reenviar mensajes desde el renderizador al proceso WebTorrent
   ipcMain.on('webtorrent-action', (event, arg) => {
     webTorrentProcess.postMessage(arg);
   });

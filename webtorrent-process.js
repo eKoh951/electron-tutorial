@@ -3,12 +3,31 @@ async function handleAddTorrent(torrentId) {
   const client = new WebTorrent();
 
   client.add(torrentId, (torrent) => {
-    torrent.files.forEach(file => {
-      file.getBuffer((err, buffer) => {
-        if (err) throw err;
-        process.parentPort.postMessage({ type: 'torrent-file', data: { name: file.name, buffer } });
-      });
+    const file = torrent.files.find(file => file.name.endsWith('.mp4'));
+
+		if (file) {
+      const url = URL.createObjectURL(file.createReadStream());
+      process.parentPort.postMessage({ type: 'torrent-file', data: { url } });
+    }
+
+    torrent.on('done', () => {
+      process.parentPort.postMessage({ type: 'torrent-done' });
     });
+
+    setInterval(() => {
+      process.parentPort.postMessage({
+        type: 'torrent-progress',
+        data: {
+          numPeers: torrent.numPeers,
+          downloaded: torrent.downloaded,
+          total: torrent.length,
+          progress: torrent.progress,
+          downloadSpeed: torrent.downloadSpeed,
+          uploadSpeed: torrent.uploadSpeed,
+          remaining: torrent.done ? 'Done.' : moment.duration(torrent.timeRemaining / 1000, 'seconds').humanize()
+        }
+      });
+    }, 500);
   });
 }
 
